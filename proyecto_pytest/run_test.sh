@@ -1,12 +1,22 @@
-#! /bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "activando el entorno virtual"
-source venv/bin/activate
+# Moverse al directorio del script (por si lo invocan desde otro lado)
+cd "$(dirname "$0")"
 
-echo "instalando dependencias"
-pip install -r requirements.txt
+echo "Creando/activando venv"
+# crea el venv solo si no existe
+[ -d venv ] || python3 -m venv venv
+. venv/bin/activate
 
-echo "ejecutando pruebas con pytest"
-pytest tests/ --junitxml=reports/test-results.xml --html=reports/test-results.html --self-contained-html
+echo "Instalando dependencias"
+pip install --upgrade pip
+pip install -r requirements.txt   # asegúrate que el nombre del archivo es este
 
-echo "pruebas finalizadas resultados en reports"
+echo "Ejecutando PyTest"
+mkdir -p reports
+python -m pytest tests/ \
+  --junitxml=reports/test-results.xml \
+  --html=reports/test-results.html --self-contained-html
+
+echo "OK: pruebas finalizadas; reportes en ./reports/"
